@@ -74,17 +74,17 @@ class ShortLink
 		if (!($stmt = $this->db->prepare('SELECT link FROM urls WHERE short = ?'))) {
 			throw new Exception('Could not prepare MySQL statement');
 		} else {
-			 $stmt->bind_param("s", $short);
+			$stmt->bind_param("s", $short);
 
-			 $stmt->execute();
+			$stmt->execute();
 
-			 $stmt->bind_result($dist);
+			$stmt->bind_result($dist);
 
-			 $stmt->fetch();
+			$stmt->fetch();
 
-			 $stmt->close();
+			$stmt->close();
 
-			 return $dist;
+			return $dist;
 		}
 
 	}
