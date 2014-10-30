@@ -5,13 +5,13 @@
  */
 class ShortLink
 {
-	
+
 	private $hostname,
 			$username,
 			$password,
 			$database,
 			$db;
-	
+
 	function __construct($hostname, $username, $password, $database)
 	{
 		$this->hostname = $hostname;
@@ -20,7 +20,7 @@ class ShortLink
 		$this->database = $database;
 	}
 
-	
+
 	/**
 	 * This method will check if a connection to the MySQL server can be made,
 	 * if not it will throw an exception
@@ -28,7 +28,7 @@ class ShortLink
 	protected function checkConnection()
 	{
 		$this->db = new mysqli($this->hostname, $this->username, $this->password, $this->database);
-		
+
 		if ($this->db->connect_errno) {
 			throw new Exception('Error connecting to database - ' . $this->db->connect_error);
 		}
@@ -54,7 +54,7 @@ class ShortLink
 		}
 
 		if (!$stmt->execute()) {
-			throw new Exception('Could not execute the query');			
+			throw new Exception('Could not execute the query');
 		}
 
 		$stmt->close();
