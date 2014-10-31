@@ -5,13 +5,13 @@
  */
 class ShortLink
 {
-	
+
 	private $hostname,
 			$username,
 			$password,
 			$database,
 			$db;
-	
+
 	function __construct($hostname, $username, $password, $database)
 	{
 		$this->hostname = $hostname;
@@ -20,7 +20,7 @@ class ShortLink
 		$this->database = $database;
 	}
 
-	
+
 	/**
 	 * This method will check if a connection to the MySQL server can be made,
 	 * if not it will throw an exception
@@ -28,7 +28,7 @@ class ShortLink
 	protected function checkConnection()
 	{
 		$this->db = new mysqli($this->hostname, $this->username, $this->password, $this->database);
-		
+
 		if ($this->db->connect_errno) {
 			throw new Exception('Error connecting to database - ' . $this->db->connect_error);
 		}
@@ -43,7 +43,7 @@ class ShortLink
 	{
 		$this->checkConnection();
 
-		$short = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 5);
+		$short = $this->generateShortLink();
 
 		if (!($stmt = $this->db->prepare('INSERT INTO urls (link, short) VALUES (?, ?)'))) {
 			throw new Exception('Could not prepare MySQL statement');
@@ -54,7 +54,7 @@ class ShortLink
 		}
 
 		if (!$stmt->execute()) {
-			throw new Exception('Could not execute the query');			
+			throw new Exception('Could not execute the query');
 		}
 
 		$stmt->close();
@@ -74,19 +74,34 @@ class ShortLink
 		if (!($stmt = $this->db->prepare('SELECT link FROM urls WHERE short = ?'))) {
 			throw new Exception('Could not prepare MySQL statement');
 		} else {
-			 $stmt->bind_param("s", $short);
+			$stmt->bind_param("s", $short);
 
-			 $stmt->execute();
+			$stmt->execute();
 
-			 $stmt->bind_result($dist);
+			$stmt->bind_result($dist);
 
-			 $stmt->fetch();
+			$stmt->fetch();
 
-			 $stmt->close();
+			$stmt->close();
 
-			 return $dist;
+			return $dist;
 		}
 
+	}
+
+	/**
+	 * This method will generate a unique short link that doesn't exist already
+	 * @param  [string] $shortCharacters [Characters to use in the generation]
+	 * @param  [string] $shortLength [Max length of the short link]
+	 * @return [string] $short ['Real URL' eg. http://madsobel.com]
+	 */
+	public function generateShortLink($shortCharacters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', $shortLength = 5)
+	{
+		do {
+			$short = substr(str_shuffle($shortCharacters), 0, $shortLength);
+		} while (!empty($this->getShortLink($short)));
+
+		return $short;
 	}
 
 }
